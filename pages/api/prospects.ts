@@ -81,7 +81,8 @@ async function getProspects(req: NextApiRequest, res: NextApiResponse<ApiRespons
         db.prospect.count({ where: { hasWebsiteIssue: true } }), // Avec problèmes
         db.prospect.groupBy({ // Par statut
           by: ['status'],
-          _count: { status: true }
+          _count: { status: true },
+          orderBy: { status: 'asc' }
         })
       ])
     ])

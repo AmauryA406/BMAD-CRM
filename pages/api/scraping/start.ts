@@ -47,7 +47,7 @@ export default async function handler(
     const validationResult = ScrapingStartSchema.safeParse(req.body)
 
     if (!validationResult.success) {
-      const firstError = validationResult.error.errors[0]
+      const firstError = validationResult.error.issues[0]
       return res.status(400).json({
         data: null,
         success: false,
