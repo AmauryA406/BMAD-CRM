@@ -1,0 +1,68 @@
+# generated: 2026-01-22
+# project: BMAD CRM
+# project_key: bmad-crm
+# tracking_system: file-system
+# story_location: /Users/amauryallemand/Documents/Projet perso/2026/B2Dev/CRM/BMAD CRM/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-01-22
+project: BMAD CRM
+project_key: bmad-crm
+tracking_system: file-system
+story_location: /Users/amauryallemand/Documents/Projet perso/2026/B2Dev/CRM/BMAD CRM/_bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Configuration et Infrastructure de Base
+  epic-1: in-progress
+  1-1-configuration-projet-structure-base: ready-for-dev
+  1-2-authentification-securite-base: backlog
+  1-3-interface-utilisateur-base-navigation: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Système de Prospection et Acquisition de Données
+  epic-2: backlog
+  2-1-module-scraping-google-maps: backlog
+  2-2-filtrage-automatique-prospects-problemes-web: ready-for-dev
+  2-3-systeme-anti-doublons-robuste: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Gestion des Prospects et CRM Core
+  epic-3: backlog
+  3-1-base-donnees-prospects-interface-consultation: backlog
+  3-2-workflow-commercial-8-phases: backlog
+  3-3-gestion-echeances-suivi-temporel: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Optimisation et Monitoring
+  epic-4: backlog
+  4-1-monitoring-metriques-performance: backlog
+  4-2-plan-continuite-backup: backlog
+  epic-4-retrospective: optional
