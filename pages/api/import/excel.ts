@@ -6,27 +6,9 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { db } from '../../../lib/database'
-import multer from 'multer'
 import * as XLSX from 'xlsx'
-import { z } from 'zod'
-
-// Configuration multer pour upload de fichiers
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel' // .xls
-    ]
-
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true)
-    } else {
-      cb(new Error('Format de fichier non supporté. Utilisez .xlsx ou .xls'))
-    }
-  }
-})
+import formidable from 'formidable'
+import fs from 'fs'
 
 interface ApiResponse<T> {
   data: T | null
@@ -63,10 +45,10 @@ export default async function handler(
   }
 
   try {
-    // Parse le fichier uploadé avec multer
-    const fileData = await parseMultipartForm(req)
+    // Parse le fichier uploadé avec formidable
+    const fileData = await parseFormData(req)
 
-    if (!fileData || !fileData.buffer) {
+    if (!fileData || !fileData.filepath) {
       return res.status(400).json({
         data: null,
         success: false,
@@ -74,8 +56,8 @@ export default async function handler(
       })
     }
 
-    // Lire le fichier Excel
-    const workbook = XLSX.read(fileData.buffer)
+    // Lire le fichier Excel depuis le disque
+    const workbook = XLSX.readFile(fileData.filepath)
     const firstSheetName = workbook.SheetNames[0]
     const worksheet = workbook.Sheets[firstSheetName]
 
@@ -89,6 +71,9 @@ export default async function handler(
 
     // Traiter l'import
     const result = await processExcelImport(rawData)
+
+    // Nettoyer le fichier temporaire
+    fs.unlinkSync(fileData.filepath)
 
     return res.status(200).json({
       data: result,
@@ -267,25 +252,34 @@ async function ensureTestUserExists() {
 }
 
 /**
- * Parse le formulaire multipart avec multer
+ * Parse le formulaire avec formidable
  */
-function parseMultipartForm(req: NextApiRequest): Promise<any> {
+function parseFormData(req: NextApiRequest): Promise<formidable.File | null> {
   return new Promise((resolve, reject) => {
-    const uploadMiddleware = upload.single('excelFile')
+    const form = formidable({
+      maxFileSize: 10 * 1024 * 1024, // 10MB max
+    })
 
-    uploadMiddleware(req as any, {} as any, (error) => {
-      if (error) {
-        reject(error)
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        reject(err)
+        return
+      }
+
+      const file = files.excelFile
+      if (Array.isArray(file)) {
+        resolve(file[0] || null)
       } else {
-        resolve((req as any).file)
+        resolve(file || null)
       }
     })
   })
 }
 
-// Désactiver le parser body par défaut pour multer
+// Désactiver le parser body par défaut pour formidable
 export const config = {
   api: {
     bodyParser: false
   }
 }
+
