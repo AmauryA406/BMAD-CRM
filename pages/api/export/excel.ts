@@ -5,16 +5,8 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { db } from '../../../lib/database'
 import * as XLSX from 'xlsx'
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: "postgresql://user:password@localhost:5432/bmadcrm?schema=public"
-    }
-  }
-})
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,7 +21,7 @@ export default async function handler(
 
   try {
     // Récupérer tous les prospects
-    const prospects = await prisma.prospect.findMany({
+    const prospects = await db.prospect.findMany({
       orderBy: [
         { status: 'asc' },
         { createdAt: 'desc' }
@@ -120,7 +112,7 @@ export default async function handler(
       }
     })
   } finally {
-    await prisma.$disconnect()
+    await db.$disconnect()
   }
 }
 
