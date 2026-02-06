@@ -9,10 +9,8 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { WebQualityFilter, WebsiteIssueResult } from '../../../lib/services/webQualityFilter'
-import { PrismaClient } from '@prisma/client'
+import { db } from '../../../lib/database'
 import { z } from 'zod'
-
-const prisma = new PrismaClient()
 const webQualityFilter = new WebQualityFilter()
 
 // Validation des données d'entrée
@@ -76,7 +74,7 @@ export default async function handler(
     const { prospects, scrapingJobId } = validationResult.data
 
     // 2. Mettre à jour le statut du job de scraping
-    await prisma.scrapingJob.update({
+    await db.scrapingJob.update({
       where: { id: scrapingJobId },
       data: {
         status: 'VALIDATING',
@@ -103,14 +101,14 @@ export default async function handler(
     console.log(`❌ ${prospectsRejected.length} prospects rejetés (sites corrects)`)
 
     // 5. Import en BDD uniquement des prospects avec problèmes
-    await prisma.scrapingJob.update({
+    await db.scrapingJob.update({
       where: { id: scrapingJobId },
       data: { status: 'IMPORTING' }
     })
 
     const importedProspects = await Promise.all(
       prospectsToKeep.map(async (prospect) => {
-        return await prisma.prospect.create({
+        return await db.prospect.create({
           data: {
             companyName: prospect.companyName,
             fullName: prospect.fullName,
@@ -135,7 +133,7 @@ export default async function handler(
     }
 
     // 7. Finaliser le job de scraping
-    await prisma.scrapingJob.update({
+    await db.scrapingJob.update({
       where: { id: scrapingJobId },
       data: {
         status: 'COMPLETED',
@@ -171,7 +169,7 @@ export default async function handler(
     try {
       const { scrapingJobId } = req.body
       if (scrapingJobId) {
-        await prisma.scrapingJob.update({
+        await db.scrapingJob.update({
           where: { id: scrapingJobId },
           data: {
             status: 'FAILED',

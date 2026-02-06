@@ -9,15 +9,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: "postgresql://user:password@localhost:5432/bmadcrm?schema=public"
-    }
-  }
-})
+import { db } from '../../lib/database'
 
 interface TestResult {
   success: boolean
@@ -41,7 +33,7 @@ export default async function handler(
   try {
     // Test 1: Connexion PostgreSQL
     try {
-      await prisma.$connect()
+      await db.$connect()
       tests.push({
         success: true,
         message: "✅ Connexion PostgreSQL établie"
@@ -56,9 +48,9 @@ export default async function handler(
 
     // Test 2: Lecture tables existantes
     try {
-      const userCount = await prisma.user.count()
-      const prospectCount = await prisma.prospect.count()
-      const scrapingJobCount = await prisma.scrapingJob.count()
+      const userCount = await db.user.count()
+      const prospectCount = await db.prospect.count()
+      const scrapingJobCount = await db.scrapingJob.count()
 
       tests.push({
         success: true,
@@ -79,7 +71,7 @@ export default async function handler(
 
     // Test 3: Création utilisateur de test
     try {
-      const testUser = await prisma.user.create({
+      const testUser = await db.user.create({
         data: {
           email: `test-${Date.now()}@bmad.com`,
           name: 'Utilisateur Test',
@@ -103,7 +95,7 @@ export default async function handler(
 
     // Test 4: Création prospect de test
     try {
-      const testProspect = await prisma.prospect.create({
+      const testProspect = await db.prospect.create({
         data: {
           companyName: `Entreprise Test ${Date.now()}`,
           fullName: 'Contact Test',
@@ -136,7 +128,7 @@ export default async function handler(
 
     // Test 5: Requête avec relations
     try {
-      const prospectsWithNotes = await prisma.prospect.findMany({
+      const prospectsWithNotes = await db.prospect.findMany({
         include: {
           notes: true,
           commercialActivities: true
@@ -167,7 +159,7 @@ export default async function handler(
       error: globalError instanceof Error ? globalError.message : 'Erreur inconnue'
     })
   } finally {
-    await prisma.$disconnect()
+    await db.$disconnect()
   }
 
   // Calculer le succès global
