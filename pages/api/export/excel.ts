@@ -122,15 +122,13 @@ export default async function handler(
 function getStatusLabel(status: string): string {
   const statusMap: Record<string, string> = {
     'PREMIER_APPEL': '📞 Premier Appel',
-    'RDVPOS': '📅 RDV Posé',
-    'RDVFAIT': '✅ RDV Fait',
-    'DEVIS': '📝 Devis',
-    'RELANCE': '🔔 Relance',
-    'NEGOCE': '💰 Négoce',
+    'A_RAPPELER': '🔔 À Rappeler',
+    'RDV_MAQUETTE_PRIS': '📅 RDV Maquette Pris',
+    'RDV_MAQUETTE_FAIT': '✅ RDV Maquette Fait',
+    'DEVIS_ENVOYE': '📝 Devis Envoyé',
+    'SIGNATURE_PROCHE': '💰 Signature Proche',
     'SIGNE': '✍️ Signé',
-    'CLIENT': '🎉 Client',
-    'PERDU': '❌ Perdu',
-    'SAV': '🔧 SAV'
+    'PERDU': '❌ Perdu'
   }
 
   return statusMap[status] || status

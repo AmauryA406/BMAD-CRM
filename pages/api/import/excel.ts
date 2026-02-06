@@ -168,12 +168,13 @@ async function processExcelImport(rawData: any[]): Promise<ImportResult> {
  */
 function mapExcelRowToProspect(row: any) {
   // Déterminer le statut basé sur les données Excel
-  let status = 'PREMIER_APPEL'
+  let status: 'PREMIER_APPEL' | 'A_RAPPELER' | 'RDV_MAQUETTE_PRIS' | 'RDV_MAQUETTE_FAIT' | 'DEVIS_ENVOYE' | 'SIGNATURE_PROCHE' | 'SIGNE' | 'PERDU' = 'PREMIER_APPEL'
+
   if (row.Statut) {
     if (row.Statut.includes('❌') || row.Statut.toLowerCase().includes('perdu')) {
       status = 'PERDU'
-    } else if (row.Statut.includes('✅') || row.Statut.toLowerCase().includes('gagné')) {
-      status = 'CLIENT'
+    } else if (row.Statut.includes('✅') || row.Statut.toLowerCase().includes('gagné') || row.Statut.toLowerCase().includes('signé')) {
+      status = 'SIGNE'
     }
   }
 
