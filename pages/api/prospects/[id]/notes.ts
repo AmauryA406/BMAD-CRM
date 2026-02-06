@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '../../../../lib/database'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query
@@ -19,28 +17,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             // TODO: Get real user ID from session
-            const systemUser = await prisma.user.findUnique({ where: { email: 'system@bmad.crm' } })
-            const userId = systemUser?.id || (await prisma.user.findFirst())?.id
+            const systemUser = await db.user.findUnique({ where: { email: 'system@bmad.crm' } })
+            const userId = systemUser?.id || (await db.user.findFirst())?.id
 
             if (!userId) {
                 return res.status(500).json({ success: false, error: { message: 'No system user found' } })
             }
 
             // Singleton: Check if note exists
-            const existingNote = await prisma.note.findFirst({
+            const existingNote = await db.note.findFirst({
                 where: { prospectId: id }
             })
 
             let note;
             if (existingNote) {
                 // Update
-                note = await prisma.note.update({
+                note = await db.note.update({
                     where: { id: existingNote.id },
                     data: { content }
                 })
             } else {
                 // Create
-                note = await prisma.note.create({
+                note = await db.note.create({
                     data: {
                         content,
                         prospectId: id,
@@ -50,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             // Log activity
-            await prisma.commercialActivity.create({
+            await db.commercialActivity.create({
                 data: {
                     prospectId: id,
                     action: 'NOTE_ADDED',
@@ -69,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'DELETE') {
         try {
             // Singleton: Check if note exists
-            const existingNote = await prisma.note.findFirst({
+            const existingNote = await db.note.findFirst({
                 where: { prospectId: id }
             })
 
@@ -77,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(404).json({ success: false, error: { message: 'Note not found' } })
             }
 
-            await prisma.note.delete({
+            await db.note.delete({
                 where: { id: existingNote.id }
             })
 

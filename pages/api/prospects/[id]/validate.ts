@@ -9,9 +9,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { WebQualityFilter } from '../../../../lib/services/webQualityFilter'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '../../../../lib/database'
 const webQualityFilter = new WebQualityFilter()
 
 interface ApiResponse<T> {
@@ -59,7 +57,7 @@ export default async function handler(
     }
 
     // 1. Récupérer le prospect existant
-    const existingProspect = await prisma.prospect.findUnique({
+    const existingProspect = await db.prospect.findUnique({
       where: { id: id as string }
     })
 
@@ -106,7 +104,7 @@ export default async function handler(
     })
 
     // 5. Mettre à jour le prospect en base
-    const updatedProspect = await prisma.prospect.update({
+    const updatedProspect = await db.prospect.update({
       where: { id: id as string },
       data: {
         hasWebsiteIssue: validationResult.hasWebsiteIssue,
@@ -117,7 +115,7 @@ export default async function handler(
     })
 
     // 6. Logger l'activité de validation
-    await prisma.commercialActivity.create({
+    await db.commercialActivity.create({
       data: {
         prospectId: id as string,
         action: 'WEBSITE_VALIDATED',
